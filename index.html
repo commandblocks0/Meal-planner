@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal planner</title>
+    <link rel="icon" href="./icons/icon-192.png" type="image/png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./style.css">
+    <script src="./script.js" defer></script>
+</head>
+<body>
+    <main>
+        <div class="planned-wrapper item-wrapper">
+            <fieldset>
+                <legend>Planned</legend>
+            </fieldset>
+            <div class="item-container"></div>
+        </div>
+        
+        <div class="foodlist-wrapper item-wrapper">
+            <fieldset>
+                <legend>
+                    Food list
+                </legend>
+            </fieldset>
+            <div class="item-container"></div>
+        </div>
+    </main>
+    <button class="add-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+    </button>
+    
+    <div class="contextmenu">
+        <button data-action="switch" class="contextbtn">Switch</button>
+        <div>
+            <label for="dateInput">Set date</label>
+            <input id="dateInput" type="date">
+        </div>
+        <div>
+            <label for="nameInput">Set name</label>
+            <input id="nameInput" type="text">
+        </div>
+        <button data-action="delete" class="contextbtn">Delete</button>
+    </div>
+    
+    <template class="item-template">
+        <div class="item">
+            <div class="date"></div>
+            <div class="name"></div>
+            <div class="drag-handle">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff"><path d="M480-80 240-320l57-57 183 183 183-183 57 57L480-80ZM298-584l-58-56 240-240 240 240-58 56-182-182-182 182Z"/></svg>
+            </div>
+        </div>
+    </template>
+</body>
+</html>
