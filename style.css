@@ -151,6 +151,10 @@ main {
     }
 }
 
+.buttons {
+    position: relative;
+}
+
 .add-btn {
     border: none;
     background: #07a;
@@ -166,6 +170,17 @@ main {
         width: 2rem;
         height: 2rem;
     }
+}
+
+.backup-btn {
+    position: absolute;
+    right: .5rem;
+    top: 50%;
+    translate: 0 -50%;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    border: none;
+    background: #1e1e1e;
 }
 
 .contextmenu {

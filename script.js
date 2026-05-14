@@ -8,10 +8,6 @@ const data = JSON.parse(localStorage.getItem("foodData")) || {}
 let selected = null
 let dragState = null
 
-function makeId() {
-    return `${Date.now()}-${Math.floor(Math.random() * 1000000)}`
-}
-
 function movePlaceholder(container, y) {
     const items = [...container.querySelectorAll(".item")]
     const before = items.find(item => y < item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2)
@@ -186,9 +182,26 @@ document.querySelector(".add-btn").addEventListener("click",()=>{
     data.foodlist.unshift({
         name,
         date: null,
-        id: makeId()
+        id: crypto.randomUUID()
     })
     display()
+})
+
+document.querySelector(".backup-btn").addEventListener("click", () => {
+    const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        { type: "application/json" }
+    )
+
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "meal-planner-backup.json"
+
+    a.click()
+
+    URL.revokeObjectURL(url)
 })
 
 document.addEventListener("click",e=>{
