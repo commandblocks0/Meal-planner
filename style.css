@@ -48,13 +48,17 @@ main {
     
     .item {
         display: grid;
-        grid-template-columns: 3rem 1fr 3rem;
+        grid-template-columns: 3rem 1fr 1rem 2rem;
         align-items: center;
         min-height: 3.25rem;
         padding: 0 .7rem;
         border-radius: 1rem;
         background: #333;
         border: 1px solid rgba(255, 255, 255, .06);
+        
+        &:has(.drag-handle.hidden) {
+            grid-template-columns: 1rem 1fr 1rem;
+        }
     }
     
     .date {
@@ -141,8 +145,7 @@ main {
 }
 
 .drag-handle.hidden {
-    visibility: hidden;
-    pointer-events: none;
+    display: none;
 }
 
 .item-container {
@@ -153,6 +156,17 @@ main {
 
 .buttons {
     position: relative;
+}
+
+.upload-btn {
+    position: absolute;
+    left: .5rem;
+    top: 50%;
+    translate: 0 -50%;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    border: none;
+    background: #1e1e1e;
 }
 
 .add-btn {
@@ -231,5 +245,47 @@ main {
         &:focus {
             outline: none;
         }
+    }
+}
+
+.history-screen {
+    display: none;
+    text-align: center;
+    background: #333;
+    position: fixed;
+    inset: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+    flex-direction: column;
+    animation: fly-in .5s;
+    
+    &.open {
+        display: flex;
+    }
+
+    .date-container {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
+    }
+
+    .item {
+        background: #555;
+        border-radius: 1rem;
+        padding: .5rem;
+    }
+}
+
+@keyframes fly-in {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 }
