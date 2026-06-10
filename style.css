@@ -155,6 +155,17 @@ main {
     position: relative;
 }
 
+.upload-btn {
+    position: absolute;
+    left: .5rem;
+    top: 50%;
+    translate: 0 -50%;
+    border-radius: 50%;
+    aspect-ratio: 1;
+    border: none;
+    background: #1e1e1e;
+}
+
 .add-btn {
     border: none;
     background: #07a;
@@ -231,5 +242,47 @@ main {
         &:focus {
             outline: none;
         }
+    }
+}
+
+.history-screen {
+    display: none;
+    text-align: center;
+    background: #333;
+    position: fixed;
+    inset: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+    flex-direction: column;
+    animation: fly-in .5s;
+    
+    &.open {
+        display: flex;
+    }
+
+    .date-container {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
+    }
+
+    .item {
+        background: #555;
+        border-radius: 1rem;
+        padding: .5rem;
+    }
+}
+
+@keyframes fly-in {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 }

@@ -3,10 +3,42 @@ const foodlistWrapper = document.querySelector(".foodlist-wrapper")
 const plannedContainer = plannedWrapper.querySelector(".item-container")
 const foodlistContainer = foodlistWrapper.querySelector(".item-container")
 const contextmenu = document.querySelector(".contextmenu")
+const historyScreen = document.querySelector(".history-screen")
 
 const data = JSON.parse(localStorage.getItem("foodData")) || {}
 let selected = null
 let dragState = null
+
+if (!data.planned) data.planned = []
+if (!data.foodlist) data.foodlist = []
+data.planned.forEach(i=>{
+    if (!i.dates) {
+        i.dates = []
+        if (i.date) {
+            i.dates.push(i.date)
+            delete i.date
+        }
+    }
+})
+data.foodlist.forEach(i=>{
+    if (!i.dates) {
+        i.dates = []
+        if (i.date) {
+            i.dates.push(i.date)
+            delete i.date
+        }
+    }
+})
+
+function getSelectedItem() {
+    if (!selected) return null
+
+    const list = selected.type === 1 ? data.planned : data.foodlist
+    return {
+        item: list.find(i => i.id === selected.id),
+        index: list.findIndex(i => i.id === selected.id)
+    }
+}
 
 function movePlaceholder(container, y) {
     const items = [...container.querySelectorAll(".item")]
@@ -115,11 +147,11 @@ function display() {
         const clone = document.querySelector(".item-template").content.cloneNode(true).firstElementChild
         clone.dataset.id = i.id
         clone.querySelector(".name").textContent = i.name
-        clone.querySelector(".date").textContent = i.date ? `${new Date(i.date).getDate()}.${new Date(i.date).getMonth()+1}` : ""        
+        clone.querySelector(".date").textContent = i.dates.length ? `${new Date(i.dates.at(-1)).getDate()}.${new Date(i.dates.at(-1)).getMonth()+1}` : ""        
         clone.addEventListener("dblclick",()=>{
             if (type==1) {
                 const removed = data.planned.splice(index, 1)[0]
-                if (index==0) removed.date = Date.now()
+                if (index==0) removed.dates.unshift(Date.now())
                 data.foodlist.push(removed)
             } else {
                 const removed = data.foodlist.splice(index, 1)[0]
@@ -130,8 +162,8 @@ function display() {
         
         clone.addEventListener("contextmenu",(e)=>{
             contextmenu.classList.add("open")
-            selected = {index, type}
-            if (i.date) document.getElementById("dateInput").value = new Date(i.date).toISOString().split("T")[0]
+            selected = {id: i.id, type}
+            if (i.dates.length) document.getElementById("dateInput").value = new Date(i.dates.at(-1)).toISOString().split("T")[0]
             else document.getElementById("dateInput").value = ""
             document.getElementById("nameInput").value = i.name
         })
@@ -145,20 +177,20 @@ function display() {
         }
     }
     
-    if (!data.planned) data.planned = []
-    if (!data.foodlist) data.foodlist = []
-    
     data.foodlist.sort((a, b) => {
-        if (!a.date && b.date) return -1
-        if (a.date && !b.date) return 1
-
-        const dateA = new Date(a.date).setHours(0,0,0,0)
-        const dateB = new Date(b.date).setHours(0,0,0,0)
+        if (!a.dates.length && b.dates.length) return -1
+        if (a.dates.length && !b.dates.length) return 1
+    
+        if (!a.dates.length && !b.dates.length)
+            return (a.name || "").localeCompare(b.name || "")
+    
+        const dateA = new Date(a.dates.at(-1)).setHours(0,0,0,0)
+        const dateB = new Date(b.dates.at(-1)).setHours(0,0,0,0)
     
         const diff = dateA - dateB
         if (diff !== 0) return diff
     
-        return (a.name||"").localeCompare(b.name||"")
+        return (a.name || "").localeCompare(b.name || "")
     })
     save()
     
@@ -179,9 +211,9 @@ document.querySelector(".add-btn").addEventListener("click",()=>{
     if (!data.foodlist) data.foodlist = []
     name = prompt("Food: ")
     if (!name) return
-    data.foodlist.unshift({
+    data.foodlist.push({
         name,
-        date: null,
+        dates: [],
         id: crypto.randomUUID()
     })
     display()
@@ -204,31 +236,71 @@ document.querySelector(".backup-btn").addEventListener("click", () => {
     URL.revokeObjectURL(url)
 })
 
+document.querySelector(".upload-btn").addEventListener("click",e=>{
+    document.getElementById("uploadInput").click()
+})
+document.getElementById("uploadInput").addEventListener("change",async e=>{
+    const file = e.target.files[0]
+    if (!file) return
+    const text = await file.text()
+    localStorage.setItem("foodData", text)
+    location.reload()
+})
+
 document.addEventListener("click",e=>{
-    if (!contextmenu.contains(e.target)) {
+    if (!contextmenu.contains(e.target) && !historyScreen.contains(e.target)) {
         contextmenu.classList.remove("open")
     }
     
     if (selected && e.target.matches(".contextbtn")) {
         const list = selected.type === 1 ? data.planned : data.foodlist
         switch (e.target.dataset.action) {
-            case "today":
-                list[selected.index].date = Date.now()
+            case "today": {
+                const item = getSelectedItem().item
+                const index = getSelectedItem().index
+                item.dates.push(Date.now())
+            
                 if (selected.type === 1) {
-                    const item = list.splice(selected.index, 1)[0]
+                    list.splice(index, 1)
                     data.foodlist.push(item)
                 }
-                break
-            case "switch":
+            
+                document.getElementById("dateInput").value =
+                    item.dates.length
+                        ? new Date(item.dates.at(-1)).toISOString().split("T")[0]
+                        : ""
+                display()
+                return
+            }
+            case "switch": {
+                const index = getSelectedItem().index
                 const fromList = selected.type === 1 ? data.planned : data.foodlist
                 const toList = selected.type === 1 ? data.foodlist : data.planned
-                const item = fromList.splice(selected.index, 1)[0]
+                const item = fromList.splice(index, 1)[0]
                 toList.push(item)
                 break
-            case "delete":
+            }
+            case "history": {
+                const index = getSelectedItem().index
+                historyScreen.classList.add("open")
+                historyScreen.querySelector(".title").textContent = list[index].name
+                
+                const dateContainer = historyScreen.querySelector(".date-container")
+                dateContainer.innerHTML = ""
+                for (const i of [...list[index].dates].reverse()) {
+                    const item = document.createElement("div")
+                    item.classList.add("item")
+                    item.textContent = `${new Date(i).getDate()}.${new Date(i).getMonth()+1}`
+                    dateContainer.appendChild(item)
+                }
+                return
+            }
+            case "delete": {
                 if (!confirm("delete?")) break
-                list.splice(selected.index, 1)
+                const index = getSelectedItem().index
+                list.splice(index, 1)
                 break
+            }
         }
         selected = null
         contextmenu.classList.remove("open")
@@ -238,16 +310,68 @@ document.addEventListener("click",e=>{
 
 document.getElementById("dateInput").addEventListener("change",(e)=>{
     if (!selected) return
+    const index = getSelectedItem().index
     const list = selected.type === 1 ? data.planned : data.foodlist
-    list[selected.index].date = new Date(e.target.value).getTime()
+    const dates = list[index].dates
+    if (e.target.value!="")
+        if (dates.length) dates[dates.length-1] = new Date(e.target.value).getTime()
+        else dates.push(new Date(e.target.value).getTime())
+    else dates.pop()
+    document.getElementById("dateInput").value = dates.length ? new Date(dates.at(-1)).toISOString().split("T")[0] : ""
     display()
 })
 
 document.getElementById("nameInput").addEventListener("change",(e)=>{
     if (!selected) return
+    const index = getSelectedItem().index
     const list = selected.type === 1 ? data.planned : data.foodlist
-    list[selected.index].name = e.target.value
+    list[index].name = e.target.value
     display()
+})
+
+let historyStartY
+let historyDragging = false
+
+historyScreen.addEventListener("touchstart", e => {
+    if (historyScreen.querySelector(".date-container").scrollTop === 0) {
+        historyStartY = e.touches[0].clientY
+        historyDragging = true
+    }
+})
+
+window.addEventListener("touchmove", e => {
+    if (!historyDragging) return
+
+    const dy = Math.max(0, e.touches[0].clientY - historyStartY)
+    historyScreen.style.transform = `translateY(${dy}px)`
+})
+
+window.addEventListener("touchend", e => {
+    if (!historyDragging) return
+    historyDragging = false
+
+    const dy = e.changedTouches[0].clientY - historyStartY
+
+    if (dy > 100) {
+        historyScreen.animate([
+            {transform: "translateY(100%)",opacity:0}
+        ],{
+            duration: 500
+        })
+        setTimeout(()=>{
+            historyScreen.classList.remove("open")
+            historyScreen.style.transform = "translateY(0)"
+        },500)
+    } else {
+        historyScreen.animate([
+            {transform: "translateY(0)"}
+        ],{
+            duration: 100
+        })
+        setTimeout(()=>
+            historyScreen.style.transform = "translateY(0)"
+        ,100)
+    }
 })
 
 if ('serviceWorker' in navigator) {

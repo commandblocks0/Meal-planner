@@ -29,6 +29,10 @@
     </main>
 
     <div class="buttons">
+        <input type="file" id="uploadInput" accept=".json,application/json" hidden>
+        <button class="upload-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
+        </button>
         <button class="add-btn">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
         </button>
@@ -44,11 +48,17 @@
             <label for="dateInput">Set date</label>
             <input id="dateInput" type="date">
         </div>
+        <button data-action="history" class="contextbtn">View history</button>
         <div>
             <label for="nameInput">Set name</label>
             <input id="nameInput" type="text">
         </div>
         <button data-action="delete" class="contextbtn">Delete</button>
+    </div>
+    
+    <div class="history-screen">
+        <h3 class="title">Meal</h3>
+        <div class="date-container"></div>
     </div>
     
     <template class="item-template">
