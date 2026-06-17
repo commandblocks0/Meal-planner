@@ -20,6 +20,47 @@ main {
     overflow: auto;
 }
 
+.search-container {
+    background: #111;
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    box-shadow: 0 10px 10px 10px #111;
+    margin-bottom: 10px;
+    
+    .search-wrapper {
+        display: flex;
+        background: #333;
+        border-radius: 10rem;
+        align-items: center;
+        padding: .5rem;
+        
+        .search-input {
+            background: none;
+            flex: 1;
+            padding: .5rem;
+            color: white;
+            border: none;
+            
+            &:focus {
+                outline: none;
+            }
+        }
+        
+        .search-input:placeholder-shown ~ .search-clear {
+            display: none;
+        }
+        
+        .search-clear {
+            padding: 0;
+            display: grid;
+            place-items: center;
+            background: none;
+            border: none;
+        }
+    }
+}
+
 .item-wrapper {
     display: flex;
     flex-direction: column;

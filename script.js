@@ -8,6 +8,7 @@ const historyScreen = document.querySelector(".history-screen")
 const data = JSON.parse(localStorage.getItem("foodData")) || {}
 let selected = null
 let dragState = null
+let filter = ""
 
 if (!data.planned) data.planned = []
 if (!data.foodlist) data.foodlist = []
@@ -200,12 +201,14 @@ function display() {
     
     plannedContainer.innerHTML = ""
     data.planned.forEach((i,index)=>{
-        addItem(i,index,1)
+        if (i.name.toLowerCase().includes(filter))
+            addItem(i,index,1)
     })
     
     foodlistContainer.innerHTML = ""
     data.foodlist.forEach((i,index)=>{
-       addItem(i,index,2) 
+        if (i.name.toLowerCase().includes(filter))
+            addItem(i,index,2) 
     })
 }
 
@@ -376,6 +379,17 @@ window.addEventListener("touchend", e => {
             historyScreen.style.transform = "translateY(0)"
         ,100)
     }
+})
+
+document.querySelector(".search-input").addEventListener("input",e=>{
+    filter = e.target.value.toLowerCase()
+    display()
+})
+
+document.querySelector(".search-clear").addEventListener("click",e=>{
+    document.querySelector(".search-input").value = ""
+    filter = ""
+    display()
 })
 
 if ('serviceWorker' in navigator) {
